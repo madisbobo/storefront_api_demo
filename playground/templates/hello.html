@@ -15,7 +15,20 @@
     <h1>Hello World!</h1>
     {% endif %}
 
-    <p>This is a hello world page you just wrote up!</p>
+    <h2>Customers with .com email account</h2>
+    <ul>
+        {% for customer in customers %}
+        <li>{{ customer.email }}</li>
+        {% endfor %}
+    </ul>
+    <br>
+    <h2>Products with low inventory (less than 10)</h2>
+    <ul>
+        {% for product in low_inventory_products %}
+        <li>{{ product.title }} - {{ product.inventory }} units.</li>
+        {% endfor %}
+    </ul>
+
 </body>
 
 </html>
