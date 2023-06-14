@@ -3,8 +3,11 @@ from django.http import HttpResponse # query expression; reference a particular 
 from django.db.models import Q, F, Value, Func, ExpressionWrapper, DecimalField
 from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Max, Min, Avg, Sum
+from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
-from store.models import Customer, Product, Order, Collection, OrderItem
+from store.models import Customer, Product, Order, Collection, OrderItem, Cart, CartItem
+from tags.models import TaggedItem
 
 # Create your views here. It like a controller in Java, request handler (takes request and returns a response)
 
@@ -155,7 +158,110 @@ def say_hello(reuqest):
     # Customers and the total amount they’ve spent
     # queryset_2 = Customer.objects.annotate(total_spend=Sum(F('order__orderitem__unit_price') * F('order__orderitem__quantity')))
     # Top 5 best-selling products and their total sales
-    queryset_2 = Product.objects.annotate(total_sales=Sum(F('orderitem__unit_price') * F('orderitem__quantity'))).order_by('-total_sales')[:5]
+    # queryset_2 = Product.objects.annotate(total_sales=Sum(F('orderitem__unit_price') * F('orderitem__quantity'))).order_by('-total_sales')[:5]
+
+    # # ----------- QUERYING GENERIC RELATIONSIPS ---------- #
+    # # First find the content_type_id for Product from db django_content_type
+    # content_type = ContentType.objects.get_for_model(Product)
+    # # Secondly, get the tags and filter by content_type (Products) and object_id (product with an id of 1)
+    # queryset_2 = TaggedItem.objects \
+    #     .select_related('tag') \
+    #     .filter(
+    #         content_type=content_type, 
+    #         object_id=1)
+    ## Doing the same with custom manager
+    queryset_2 = TaggedItem.objects.get_tags_for(Product, 1)
+
+    # # ----------- QUERYING SET CACHE ---------- #
+    # queryset_3 = Product.objects.all()
+    # # queryset is queried stored in a cache and subsequent requests will not need to make other queries
+    # list(queryset_3)
+    # queryset_3[0]
+    # # two queries and needed. So be careful with the order to make sure to utilize caching properly
+    # queryset_3[0]
+    # list(queryset_3)
+
+    # # ----------- CREATING OBJECTS (rows) ---------- #
+    # How to insert a record in a database
+    # collection = Collection()
+    # collection.title = 'Video Games'
+    # collection.featured_product = None
+    # # collection.featured_product = Product(pk=1) # The product itself needs to exist with the category_id before
+    # collection.save()
+
+    # # ----------- UPDATING OBJECTS (rows) ---------- #
+    ## Updating all fields
+    # collection = Collection(pk=11)
+    # collection.title = 'Games'
+    # collection.featured_product = None
+    # collection.save()
+    
+    ## Updating only part of the object (then you need to get the entire object first)
+    # collection = Collection.objects.get(pk=6)
+    # collection.featured_product = Product(pk=1)
+    # collection.save()
+
+    ## Alternatively with some optimized performance (no need to read the entire object first)
+    # Collection.objects.filter(pk=6).update(featured_product=Product(pk=1))
+
+    # # ----------- DELETING OBJECTS (rows) ---------- #
+    # # To delet one object
+    # collection = Collection(pk=11)
+    # collection.delete()
+
+    # # To delete multiple objects (rows)
+    # Collection.objects.filter(id__gt=5).delete()
+
+    ## EXERCISES ##
+    # # Create a shopping cart with an item
+    # cart = Cart()
+    # cart.save()
+
+    # cart_item = CartItem()
+    # cart_item.cart = Cart(pk=1)
+    # cart_item.product = Product(pk=1)
+    # cart_item.quantity = 5
+    # cart_item.save()
+
+    # # Update the quantity of an item in a shopping cart
+    # item1 = CartItem.objects.get(pk=1)
+    # item1.quantity = 1
+    # item1.save()
+
+    # CartItem.objects.get(pk=1).update(quantity=1) # Alternative
+
+    # # Remove a shopping cart with its items
+    # cart_item = CartItem(pk=1)
+    # cart_item.delete()
+
+    # CartItem(pk=1).delete() # Alternative method
+
+    # # Because we've enabled cascading in the relationship between cart and its items, deleting a cart automatically delets its items too
+    # cart = Cart(pk=1)
+    # cart.delete
+
+    # # ----------- TRANSACTIONS ---------- #
+    # # Meaning all changes should be saved together (or otherwise rolled back)
+    # # You can use a decorated above the class (@transaction.atomic()) or have more control with "with"
+
+    # with transaction.atomic():
+    #     order = Order()
+    #     order.customer = Customer(pk=1)
+    #     order.save()
+
+    #     order_item = OrderItem()
+    #     order_item.order = order
+    #     order_item.product = Product(pk=1)
+    #     order_item.quantity = 2
+    #     order_item.unit_price = 10
+    #     order_item.save()
+
+    # # ----------- EXECUTING RAW SQL QUERIES ---------- #
+    # # Use it only when you end up with super complex queries or it does not work well
+    # raw_queryset = Product.objects.raw('SELECT * FROM store_product')
+
+
+
 
 
     return render(reuqest, 'hello.html', {
@@ -170,4 +276,4 @@ def say_hello(reuqest):
         'collection_3': collection_3,
         'collection_3_pricing': collection_3_pricing,
         'low_inventory_products': list(qs_low_inventory_products),
-        'funct_query': list(queryset_2)})
+        'tags': list(queryset_2)})
