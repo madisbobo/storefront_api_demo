@@ -15,13 +15,27 @@
     <h1>Hello World!</h1>
     {% endif %}
 
-    <h2>Customers with .com email account</h2>
+    <h2>Some statistics:</h2>
     <ul>
-        {% for customer in customers %}
-        <li>{{ customer.email }}</li>
+        <li>Total products in {{collection_3}}: {{ result.count }}</li>
+        <li>Min price in collection 3: ${{ result.min_price }}</li>
+        <li>Total orders: {{ orders_count.total_orders }}</li>
+        <li>{{ product_1 }} units sold: {{ units_sold.sum }}</li>
+        <li>Orders by {{ customer_1.first_name }} {{ customer_1.last_name }}: {{ orders_by_c1.count }}</li>
+        <li>Min price of the products in {{collection_3}}: ${{ collection_3_pricing.min_price}}</li>
+        <li>Max price of the products in {{collection_3}}: ${{ collection_3_pricing.max_price}}</li>
+        <li>Average price of the products in {{collection_3}}: ${{ collection_3_pricing.avg_price}}</li>
+
+    </ul>
+
+    <h2>Last 5 orders with their customer and items:</h2>
+    <ul>
+        {% for order_item in orders %}
+        <li>{{ order_item.order.placed_at }} - {{ order_item.order.customer.first_name }} {{ order_item.order.customer.last_name }} - {{ order_item.product.title }}</li>
         {% endfor %}
     </ul>
     <br>
+
     <h2>Products with low inventory (less than 10)</h2>
     <ul>
         {% for product in low_inventory_products %}
