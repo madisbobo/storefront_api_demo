@@ -123,8 +123,8 @@ def say_hello(reuqest):
     product_1 = Product.objects.filter(id=1).values('title')[0]['title']
     units_sold = OrderItem.objects.filter(product_id=1).aggregate(sum=Sum('quantity'))
     # How many orders has customer 1 placed?
-    customer_1 = Customer.objects.filter(id=1).values('first_name', 'last_name')[0]
-    orders_by_c1 = Order.objects.filter(customer_id=1).aggregate(count=Count('id'))
+    # customer_1 = Customer.objects.filter(id=1).values('first_name', 'last_name')[0]
+    # orders_by_c1 = Order.objects.filter(customer_id=1).aggregate(count=Count('id'))
     # What is the min, max and average price of the products in collection 3?
     collection_3 = Collection.objects.filter(id=3).values('title')[0]['title']
     collection_3_pricing = Product.objects.filter(collection_id=3).aggregate(
@@ -271,8 +271,8 @@ def say_hello(reuqest):
         'orders_count': orders_count,
         'units_sold': units_sold,
         'product_1': product_1,
-        'customer_1': customer_1,
-        'orders_by_c1': orders_by_c1,
+        # 'customer_1': customer_1,
+        # 'orders_by_c1': orders_by_c1,
         'collection_3': collection_3,
         'collection_3_pricing': collection_3_pricing,
         'low_inventory_products': list(qs_low_inventory_products),
