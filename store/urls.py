@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('products', viewset=views.ProductViewSet, basename='products')
 router.register('collections', viewset=views.CollectionViewSet, basename='collections')
 router.register('carts', viewset=views.CartViewSet, basename='carts')
+router.register('customers', viewset=views.CustomerViewSet, basename='customers')
 
 products_router = routers.NestedDefaultRouter(router, 'products', lookup='product') # Lookup parameter specifies the keyword argument used for looking up the parent instance.
 products_router.register('reviews', views.ReviewViewSet, basename='product-review') # Basename parameter is used to define the base name for the registered viewset. It helps in generating the URL patterns for the viewset's endpoints.
