@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.conf import settings
 from django.db import models
 from uuid import uuid4
+from .import validators
 
 
 
@@ -44,6 +45,10 @@ class Product(models.Model):
     
     class Meta:
         ordering = ['title']
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='store/images', validators=[validators.validate_file_size])
 
 
 class Review(models.Model):
@@ -127,7 +132,7 @@ class Address(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.PROTECT)
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='orderitems')
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
