@@ -4,6 +4,8 @@ from django.db.models import Q, F, Value, Func, ExpressionWrapper, DecimalField
 from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Max, Min, Avg, Sum
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import mail_admins, send_mail, BadHeaderError, EmailMessage
+from templated_mail.mail import BaseEmailMessage
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from store.models import Customer, Product, Order, Collection, OrderItem, Cart, CartItem
@@ -260,8 +262,37 @@ def say_hello(reuqest):
     # # Use it only when you end up with super complex queries or it does not work well
     # raw_queryset = Product.objects.raw('SELECT * FROM store_product')
 
+    # # ----------- SEND EMAIL ---------- #
+    # # Sending email 
+    # try:
+    #     send_mail('subject', 'message', 'info@madis.com', ['info@moshbuy.com'])
+    # except BadHeaderError: #BadHeadError prevents attacks to change header
+    #     pass # You would return an error in that case
 
+    # # Sending email to an admin
+    # try:
+    #     mail_admins('subject', 'message', html_message='message_html')
+    # except BadHeaderError:
+    #     pass
 
+    # # Sending email with an attachment
+    # try:
+    #     message = EmailMessage('subject', 'message', 'from@bob.com', ['to@bob.com'])
+    #     message.attach_file('playground/static/images/codequiz.png')
+    #     message.send()
+    # except BadHeaderError:
+    #     pass
+
+    # # Sending templated emails (pipenv install django-templated-mail)
+    try:
+        message =  BaseEmailMessage(
+            template_name='emails/hello.html',
+            context={'name': 'Madis'}
+        )
+        message.attach_file('playground/static/images/codequiz.png')
+        message.send(['to@bob.com'])
+    except BadHeaderError:
+        pass
 
 
     return render(reuqest, 'hello.html', {
