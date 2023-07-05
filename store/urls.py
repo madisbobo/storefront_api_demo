@@ -20,7 +20,6 @@ carts_router.register('items', views.CartItemViewSet, basename='cart-item')
 # URLConf
 urlpatterns = router.urls + products_router.urls + carts_router.urls
 
-
 # urlpatterns = [
 #     router.pat
 #     # path('products/', views.ProductList.as_view()), # as_view() converts it into a regular function_based view
