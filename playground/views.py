@@ -10,6 +10,7 @@ from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 from store.models import Customer, Product, Order, Collection, OrderItem, Cart, CartItem
 from tags.models import TaggedItem
+from .tasks import notify_customers
 
 # Create your views here. It like a controller in Java, request handler (takes request and returns a response)
 
@@ -294,6 +295,9 @@ def say_hello(reuqest):
     except BadHeaderError:
         pass
 
+    
+    # # Doing time consuming tasks on the background
+    notify_customers.delay('Hello')
 
     return render(reuqest, 'hello.html', {
         'name': 'Madis',
