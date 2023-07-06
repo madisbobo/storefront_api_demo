@@ -10,21 +10,25 @@ class WebsiteUser(HttpUser):
     def view_products(self):
         collection_id = randint(2, 6)
         self.client.get(f'/store/products/?collection_id={collection_id}', 
-                        name='/store/products')
+                        name='/store/products') # type: ignore
         
     @task(4)
     def view_product(self):
         product_id = randint(1,1000)
-        self.client.get(f'/store/products/{product_id}', name='/store/products/:id')
+        self.client.get(f'/store/products/{product_id}', name='/store/products/:id') # type: ignore
 
     @task(1)
     def add_to_cart(self):
         product_id = randint(1, 10) # Limiting the range to see if updating the product quantity has any performance issues
         self.client.post(
             f'/store/carts/{self.cart_id}/items/', 
-            name='/store/carts/items',
+            name='/store/carts/items', # type: ignore
             json={'product_id': product_id, 'quantity': 1}
         )
+
+    @task(2)
+    def slow_hello(self):
+        self.client.get('/playground/slow-hello/')
 
 
     def on_start(self): # Lifecycle hook - called every time a new user starts browing our website

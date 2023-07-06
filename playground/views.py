@@ -11,6 +11,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from store.models import Customer, Product, Order, Collection, OrderItem, Cart, CartItem
 from tags.models import TaggedItem
 from .tasks import notify_customers
+import requests
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
+import logging
 
 # Create your views here. It like a controller in Java, request handler (takes request and returns a response)
 
@@ -312,3 +318,61 @@ def say_hello(reuqest):
         'collection_3_pricing': collection_3_pricing,
         'low_inventory_products': list(qs_low_inventory_products),
         'tags': list(queryset_2)})
+
+
+# # ------- CACHING ------- # #
+
+# # Low level caching
+# def slow_hello(request):
+#     key = 'httpbin_results'
+#     if cache.get(key) is None:
+#         response = requests.get('https://httpbin.org/delay/2')
+#         data = response.json()
+#         cache.set(key, data)
+#     return render(request, 'slow_hello.html', {
+#         'name': 'Madis',
+#         'httpbin_response': cache.get(key)
+#         })
+
+
+# Easier way for cahcing. The entire process of caching is controlled by @cache_page decorator
+# Function based view
+# @cache_page(5 * 60)
+# def slow_hello(request):
+#     response = requests.get('https://httpbin.org/delay/2')
+#     data = response.json()
+#     return render(request, 'slow_hello.html', {
+#         'name': 'Madis',
+#         'httpbin_response': data
+#         })
+
+# For class based-view, it works a bit different. Need to wrap it with method_decorator
+class HelloView(APIView):
+    @method_decorator(cache_page(5*60))
+    def get(self, request):
+        response = requests.get('https://httpbin.org/delay/2')
+        data = response.json()
+        return render(request, 'slow_hello.html', {
+            'name': 'Madis',
+            'httpbin_response': data
+        })
+
+
+# # ---- LOGGING ---- # #
+logger = logging.getLogger(__name__) # Translates into playground.views
+
+# Using the same function based slow-hello as earlier, but with logging incorporated
+@cache_page(5 * 60)
+def slow_hello(request):
+    try: 
+        logger.info('Calling httpbin')
+        response = requests.get('https://httpbin.org/delay/2')
+        logger.info('Received the response')
+        data = response.json()
+    except requests.ConnectionError:
+        logger.critical('Connection error!')
+    return render(request, 'slow_hello.html', {
+        'name': 'Madis',
+        'httpbin_response': data
+        })
+
