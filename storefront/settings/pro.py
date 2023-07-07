@@ -12,8 +12,7 @@ DATABASES = {
     'default': dj_database_url.config() # This module looks for an env variable called DATABASE_URL
 }
 
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_PORT = 2525
-DEFAULT_FROM_EMAIL = 'from@madis.com'
+EMAIL_HOST = os.environ['MAILGUN_SMTP_SERVER']
+EMAIL_HOST_USER = os.environ['MAILGUN_SMTP_LOGIN']
+EMAIL_HOST_PASSWORD = os.environ['MAILGUN_SMTP_PASSWORD']
+EMAIL_PORT = os.environ['MAILGUN_SMTP_PORT']
