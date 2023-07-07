@@ -162,12 +162,8 @@ SIMPLE_JWT = {
    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120)
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_PORT = 2525
-DEFAULT_FROM_EMAIL = 'from@madis.com'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 
 ADMINS = [
     ('Bob', 'admin@bob.com')
